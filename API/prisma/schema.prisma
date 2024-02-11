@@ -6,6 +6,49 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+  address String
+  phoneNumber String
+  transactions Transaction[]
+}
+
+
+model Event {
+  id Int @id @default(autoincrement())
+  eventName String
+  description String
+  startDate   DateTime
+  endDate DateTime
+  location String
+  tickets Ticket[]
+}
+
+model Ticket {
+  id Int @id @default(autoincrement())
+  eventId Int
+  price Float
+  Stock Int
+  orderDate DateTime
+  transactions Transaction[]
+  event Event @relation(fields: [eventId], references: [id])
+}
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  userId Int
+  ticketId Int
+  totalTicket Int
+  totalPrice Float
+  buyingMethod String
+  transactionDate DateTime
+  user User @relation(fields: [userId], references: [id])
+  ticket Ticket @relation(fields: [tiketId], references: [id])
 }
