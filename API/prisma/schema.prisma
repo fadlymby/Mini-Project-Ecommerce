@@ -10,16 +10,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+male
+female
+}
+
+enum Role {
+user
+admin
+}
+
+enum StockStatus { 
+  Available
+  Sold-Out
+}
+
 model User {
   id Int @id @default(autoincrement())
   name String
   email String @unique
   password String
-  address String
   phoneNumber String
+  gender Gender?
+  role Role? @default(user)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
   transactions Transaction[]
+  addresses Address[]
+  tickets Ticket []
+  categories Category[]
+  carts Cart[]
 }
 
+model Address {
+  id Int @id @default(autoincrement())
+  userId Int
+  user   User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  address String
+  province String
+  city String
+  postal_code Int
+  transactions Transaction[]
+}
 
 model Event {
   id Int @id @default(autoincrement())
@@ -37,13 +69,26 @@ model Ticket {
   price Float
   Stock Int
   orderDate DateTime
+  user   User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   transactions Transaction[]
+  stock Stock[]
+  ticket_category Ticket_Category[]
+  carts Cart[]
   event Event @relation(fields: [eventId], references: [id])
+}
+
+model Stock {
+  id Int @id @default(autoincrement())
+  ticketId Int
+  stock_qty Decimal
+  status StockStatus?
+  ticket  Ticket  @relation(fields: [ticketId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Transaction {
   id Int @id @default(autoincrement())
   userId Int
+  address_id Int
   ticketId Int
   totalTicket Int
   totalPrice Float
@@ -51,4 +96,30 @@ model Transaction {
   transactionDate DateTime
   user User @relation(fields: [userId], references: [id])
   ticket Ticket @relation(fields: [tiketId], references: [id])
+  address   Address  @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  category_name String
+  userId Int
+  user   User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ticket_category Ticket_Category[]
+}
+
+model Ticket_Category {
+  ticketId Int
+  categoryId Int
+  ticket  Ticket  @relation(fields: [ticketId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@id([ticketId,categoryId])
+}
+
+model Cart {
+  userId Int
+  ticketId Int
+  qty Decimal
+  user User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ticket  Ticket  @relation(fields: [ticketId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@id([userId,ticketId])
 }
