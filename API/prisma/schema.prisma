@@ -20,7 +20,6 @@ model User {
   transactions Transaction[]
 }
 
-
 model Event {
   id Int @id @default(autoincrement())
   eventName String
@@ -51,4 +50,12 @@ model Transaction {
   transactionDate DateTime
   user User @relation(fields: [userId], references: [id])
   ticket Ticket @relation(fields: [tiketId], references: [id])
+}
+
+model Promotion {
+  id Int @id @default(autoincrement())
+}
+
+model Point {
+  id Int @id @default(autoincrement())
 }
