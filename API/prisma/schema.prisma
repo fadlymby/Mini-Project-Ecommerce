@@ -10,12 +10,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  customer
+  organizer
+}
+
 model User {
   id Int @id @default(autoincrement())
   name String
   email String @unique
   password String
   address String
+  role Role
+  referralNumber String
+  points Int
+  referredBy String?
+  discountCoupon String?
+  discountExpiry DateTime @default(now())
   phoneNumber String
   transactions Transaction[]
 }
@@ -24,10 +35,30 @@ model Event {
   id Int @id @default(autoincrement())
   eventName String
   description String
-  startDate   DateTime
-  endDate DateTime
+  startDate   DateTime @default(now())
+  endDate DateTime @default(now())
   location String
+  availableSeats Int
+  isFree Boolean @default(false)
+  ticketTypes String?
   tickets Ticket[]
+  reviews Review[]
+}
+
+model Referral {
+  id Int @id @default(autoincrement())
+  referrerId Int
+  refereeId Int
+  referralDate DateTime @default(now())
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  eventId Int
+  rating Int
+  comment String?
+  createdAt  DateTime @default(now())
+  event Event @relation(fields: [eventId], references: [id])
 }
 
 model Ticket {
@@ -52,10 +83,11 @@ model Transaction {
   ticket Ticket @relation(fields: [tiketId], references: [id])
 }
 
-model Promotion {
+model EventStatistic {
   id Int @id @default(autoincrement())
-}
-
-model Point {
-  id Int @id @default(autoincrement())
+  eventId Int
+  year Int
+  month Int?
+  day Int?
+  event Event @relation(fields: [eventId], references: [id])
 }
