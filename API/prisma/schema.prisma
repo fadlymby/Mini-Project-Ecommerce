@@ -30,6 +30,13 @@ model User {
   name String
   email String @unique
   password String
+  address String
+  role Role
+  referralNumber String
+  points Int
+  referredBy String?
+  discountCoupon String?
+  discountExpiry DateTime @default(now())
   phoneNumber String
   gender Gender?
   role Role? @default(user)
@@ -57,10 +64,30 @@ model Event {
   id Int @id @default(autoincrement())
   eventName String
   description String
-  startDate   DateTime
-  endDate DateTime
+  startDate   DateTime @default(now())
+  endDate DateTime @default(now())
   location String
+  availableSeats Int
+  isFree Boolean @default(false)
+  ticketTypes String?
   tickets Ticket[]
+  reviews Review[]
+}
+
+model Referral {
+  id Int @id @default(autoincrement())
+  referrerId Int
+  refereeId Int
+  referralDate DateTime @default(now())
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  eventId Int
+  rating Int
+  comment String?
+  createdAt  DateTime @default(now())
+  event Event @relation(fields: [eventId], references: [id])
 }
 
 model Ticket {
@@ -96,30 +123,13 @@ model Transaction {
   transactionDate DateTime
   user User @relation(fields: [userId], references: [id])
   ticket Ticket @relation(fields: [tiketId], references: [id])
-  address   Address  @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Category {
+model EventStatistic {
   id Int @id @default(autoincrement())
-  category_name String
-  userId Int
-  user   User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  ticket_category Ticket_Category[]
-}
-
-model Ticket_Category {
-  ticketId Int
-  categoryId Int
-  ticket  Ticket  @relation(fields: [ticketId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  category  Category  @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  @@id([ticketId,categoryId])
-}
-
-model Cart {
-  userId Int
-  ticketId Int
-  qty Decimal
-  user User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  ticket  Ticket  @relation(fields: [ticketId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  @@id([userId,ticketId])
+  eventId Int
+  year Int
+  month Int?
+  day Int?
+  event Event @relation(fields: [eventId], references: [id])
 }
